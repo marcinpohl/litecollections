@@ -19,13 +19,13 @@ class LiteDict(LiteCollection):
     schema = [
         '''
             CREATE TABLE IF NOT EXISTS kv_store(
-                key TEXT UNIQUE NOT NULL,
+                key TEXT UNIQUE NOT NULL ON CONFLICT REPLACE,
                 value JSON,
                 CHECK(json_valid(value))
             )
         '''
     ]
-    _default_db_path = ':memory:'
+    _default_db_path = LiteCollection._default_db_path
     
     def __init__(self, db_path=_default_db_path, *dict_args, **dict_kwargs):
         if not isinstance(db_path, str):

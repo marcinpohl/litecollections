@@ -2,12 +2,12 @@ from __future__ import print_function
 from distutils.core import setup
 import sys, os, setuptools
 
-version = '2022.5.14'
+version = '2022.5.15'
 name = 'litecollections'
+
 packages = setuptools.find_packages()
 
 assert name in packages, [name, packages]  # if package name doesnt show up, something is wrong
-
 
 setup(
   name = name,
