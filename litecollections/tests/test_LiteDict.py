@@ -6,7 +6,7 @@ from unittest import TestCase, main
 from random import getrandbits
 
 from hypothesis import given
-from hypothesis.strategies import text
+from hypothesis.strategies import text, integers
 
 from litecollections import LiteDict
 
@@ -65,19 +65,42 @@ class TestLiteDict(TestCase):
     #            assert _k+1 == len(d), [_k+1, len(d)]
 
 class TestLiteDictHypthesisBeatdown(TestCase):
-    def test_str_keys(self):
-        '''tests if hypothesis can come up with keys that LiteDict wont work with'''
-        @given(text(), text())
+    def generate_type_combo_test(self, key_strategy, value_strategy):
+        '''acts as a harness for type hypothesis to try different type combos'''
+        assert callable(key_strategy), key_strategy
+        assert callable(value_strategy), value_strategy
+
+        @given(key_strategy(), value_strategy())
         def test(k, v):
             with LiteDict() as d:
                 d[k] = v
                 self.assertIn(k, d)
                 self.assertEqual(d[k], v)
-                d[k] = v + v
-                self.assertEqual(d[k], v + v)
+                try:
+                    v + v # check if the values can be added together
+                except:
+                    pass
+                else:
+                    # if they can, update the key with the values added together and test if the value updated
+                    d[k] = v + v
+                    self.assertIn(k, d)
+                    self.assertEqual(d[k], v + v)
+                # test deletion 
                 del d[k]
                 self.assertNotIn(k, d)
-        test()
+                # reinsert to keep building up a db
+                d[k] = v
+                self.assertIn(k, d)
+                self.assertEqual(d[k], v)
+        return test
+
+    def test_str_keys_and_str_values(self):
+        '''tests if hypothesis can come up with string keys that LiteDict wont work with if using string values'''
+        self.generate_type_combo_test(text, text)()
+    
+    def test_str_keys_and_int_values(self):
+        '''tests if hypothesis can come up with string keys that LiteDict wont work with if using int values'''
+        self.generate_type_combo_test(text, integers)()
 
 if __name__ == '__main__':
     main(verbosity=2)
