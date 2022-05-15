@@ -33,3 +33,13 @@ test: install-with-test-tools
 
 clean:
 	rm -rv $(PYCACHE_DIRS) $(HYPOTHESIS_DIRS)
+
+# to release, you will need TWINE_USERNAME and TWINE_PASSWORD defined
+release: setup.py test
+	echo "WARNING - make release has never been tested" && exit 1
+	$(MAKE) clean
+	$(PYTHON) setup.py sdist
+	$(PYTHON) -m pip install --user --upgrade twine
+	$(HOME)/.local/bin/twine upload $(shell find dist -type f -name '*.tar.gz' | sort -V | grep . | tail -1)
+
+	
