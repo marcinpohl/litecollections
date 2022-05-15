@@ -3,7 +3,7 @@ from distutils.core import setup
 import sys, os, setuptools
 
 # base settings
-version = '2022.5.15.4'
+version = '2022.5.15.5'
 name = 'litecollections'
 
 # find the modules in this repo

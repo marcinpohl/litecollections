@@ -15,7 +15,7 @@ from litecollections import LiteDict
 def random_bytes():
     return getrandbits(128).to_bytes(16, 'little')
 
-class TestLiteDict(TestCase):
+class Test_LiteDict(TestCase):
     ''' Main unittests for litecollections.LiteDict '''
     def test_int_keys(self):
         '''test if ints can be used as keys'''
@@ -64,7 +64,7 @@ class TestLiteDict(TestCase):
     #            assert d[k] == 'waffle', repr(d[k])
     #            assert _k+1 == len(d), [_k+1, len(d)]
 
-class TestLiteDictHypthesisBeatdown(TestCase):
+class Test_LiteDict_HypthesisBeatdown(TestCase):
     def generate_type_combo_test(self, key_strategy, value_strategy):
         '''acts as a harness for type hypothesis to try different type combos'''
         assert callable(key_strategy), key_strategy
