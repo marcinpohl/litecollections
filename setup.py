@@ -2,7 +2,7 @@ from __future__ import print_function
 from distutils.core import setup
 import sys, os, setuptools
 
-version = '2022.5.15'
+version = '2022.5.15.2'
 name = 'litecollections'
 
 packages = setuptools.find_packages()

@@ -19,7 +19,7 @@ class LiteDict(LiteCollection):
     schema = [
         '''
             CREATE TABLE IF NOT EXISTS kv_store(
-                key TEXT UNIQUE NOT NULL ON CONFLICT REPLACE,
+                key TEXT UNIQUE ON CONFLICT REPLACE,
                 value JSON,
                 CHECK(json_valid(value))
             )
@@ -88,7 +88,7 @@ class LiteDict(LiteCollection):
         assert hashable(key), f'unhashable input {key}'
         list(self._cursor.execute(
             'delete from kv_store where key=?',
-            dump(key)
+            [dump(key)]
         ))
         if self._autocommit:
             self.commit()
