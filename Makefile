@@ -2,7 +2,19 @@ SHELL := /bin/bash
 
 PACKAGE_NAME := litecollections
 
-COMPONENTS = $(wildcard $(PACKAGE_NAME)/Lite*.py)
+PYTHON := python3
 
-debug:
-	echo $(COMPONENTS)
+PYCACHE_DIRS = $(shell find -type d -name __pycache__)
+
+install: setup.py
+	$(PYTHON) -m pip install --user .
+
+install-with-test-tools:
+	$(PYTHON) -m pip install --user hypothesis
+	$(MAKE) install
+
+test: install-with-test-tools
+	$(PYTHON) -m unittest --verbose $(PACKAGE_NAME)
+
+clean:
+	rm -rv $(PYCACHE_DIRS)
