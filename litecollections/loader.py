@@ -75,7 +75,7 @@ class LiteEncoder(JSONEncoder):
         # otherwise raise a NotImplementedError
         else:
             raise NotImplementedError(f'encoding for type[{type(o.__name__)}] has not been implemented yet')
-    
+
     @staticmethod
     def dict_decode(dct):
         ''' dict decoder to catch custom dict encodings this library encoded to reassemble proper python datatypes '''
@@ -95,12 +95,12 @@ load = partial(
 if __name__ == '__main__':
     # running this file runs light smoke testing
     # against the setup
-    
+
     from random import getrandbits, random
-    
+
     def random_bytes():
         return getrandbits(128).to_bytes(16, 'little')
-    
+
     test_inputs = [
         *[random() for i in range(4)],
         *[int(i*128) for i in range(4)],
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     ]
     for n, test in enumerate(test_inputs):
         print('test', n+1, 'of', len(test_inputs), '-', type(test), '-', repr(test))
-    
+
         # assert correct types
         dt = dump(test)
         assert isinstance(dt, str), dt

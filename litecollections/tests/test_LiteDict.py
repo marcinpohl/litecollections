@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+''' Main unittests for litecollections.LiteDict '''
 
-from functools import partial
+#from functools import partial
 from unittest import TestCase, main
-from random import getrandbits
+from random import randbytes
 
 from hypothesis import given
 from hypothesis.strategies import text, integers
 
 from litecollections import LiteDict
 
-''' Main unittests for litecollections.LiteDict '''
 
 def random_bytes():
-    return getrandbits(128).to_bytes(16, 'little')
+    ### return getrandbits(128).to_bytes(16, 'little')   OR
+    return randbytes(128//16)
 
 class Test_LiteDict(TestCase):
     ''' Main unittests for litecollections.LiteDict '''
@@ -51,7 +52,7 @@ class Test_LiteDict(TestCase):
                 assert k in d, [k, d.keys()]
                 assert d[k] == 'waffle', repr(d[k])
                 assert _k+1 == len(d), [_k+1, len(d)]
-                
+
     #def test_str_keys_with_persistence(self):
     #    print('now for persistence (this should fail if ran twice)')
     #    with LiteDict('persistent_dict.db') as d:
@@ -85,7 +86,7 @@ class Test_LiteDict_HypthesisBeatdown(TestCase):
                     d[k] = v + v
                     self.assertIn(k, d)
                     self.assertEqual(d[k], v + v)
-                # test deletion 
+                # test deletion
                 del d[k]
                 self.assertNotIn(k, d)
                 # reinsert to keep building up a db
@@ -97,7 +98,7 @@ class Test_LiteDict_HypthesisBeatdown(TestCase):
     def test_str_keys_and_str_values(self):
         '''tests if hypothesis can come up with string keys that LiteDict wont work with if using string values'''
         self.generate_type_combo_test(text, text)()
-    
+
     def test_str_keys_and_int_values(self):
         '''tests if hypothesis can come up with string keys that LiteDict wont work with if using int values'''
         self.generate_type_combo_test(text, integers)()

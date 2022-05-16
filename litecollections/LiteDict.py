@@ -14,6 +14,7 @@ def hashable(obj) -> bool:
     else:
         return True
 
+
 class LiteDict(LiteCollection):
     ''' python dict but backed by a sqlite database '''
     schema = [
@@ -26,7 +27,7 @@ class LiteDict(LiteCollection):
         '''
     ]
     _default_db_path = LiteCollection._default_db_path
-    
+
     def __init__(self, db_path=_default_db_path, *dict_args, **dict_kwargs):
         if not isinstance(db_path, str):
             # db_path is being used as a traditional arg for dict()
@@ -50,7 +51,7 @@ class LiteDict(LiteCollection):
                     **dict_kwargs
                 )
             )
-            
+
     def __setitem__(self, key, value):
         assert hashable(key), f'unhashable input {key}'
         list(self._cursor.execute(
@@ -59,9 +60,9 @@ class LiteDict(LiteCollection):
             ''',
             [dump(key), dump(value)]
         ))
-        if self._autocommit:
+        if self._autocommit:    ###MP you mean if NOT _autocommit then commit?
             self.commit()
-        
+
     def __contains__(self, key):
         assert hashable(key), f'unhashable input {key}'
         count, = self._cursor.execute(
@@ -70,10 +71,11 @@ class LiteDict(LiteCollection):
             ''',
             [dump(key)]
         ).fetchone()
+        ###MP shouldn't this be fetchmany?  so if for some reason we're returning more than 1, we'd check it here?  fetchone() might be hiding a bug
         return count == 1
-        
+
     def __getitem__(self, key):
-        assert hashable(key), f'unhashable input {key}'
+        assert hashable(key), f'unhashable input {key}' ###MP handle the error, dont fail the whole program
         query = self._cursor.execute(
             '''
                 SELECT value FROM kv_store WHERE key=? LIMIT 1
@@ -83,7 +85,7 @@ class LiteDict(LiteCollection):
         for value, in query:
             return load(value)
         raise KeyError(f'couldnt find key {repr(key)}')
-    
+
     def __delitem__(self, key):
         assert hashable(key), f'unhashable input {key}'
         list(self._cursor.execute(
@@ -92,7 +94,7 @@ class LiteDict(LiteCollection):
         ))
         if self._autocommit:
             self.commit()
-        
+
     def __iter__(self):
         query = self._cursor.execute(
             '''
@@ -101,49 +103,47 @@ class LiteDict(LiteCollection):
         )
         for key, in query:
             yield load(key)
-    
+
     def __len__(self):
         query = self._cursor.execute('''
             select count(key) from kv_store
         ''')
         for cnt, in query:
             return cnt
-            
+
     def __str__(self):
         return str(dict(self.items()))
-        
+
     def __repr__(self):
         return repr(dict(self.items()))
-        
+
     def update(self, update_dict):
         assert isinstance(update_dict, dict), update_dict
         for k,v in update_dict.items():
             self[k] = v
-            
-    
-    def iter_values(self):
+
+
+    def iter_values(self):  ###MP values_iter might be more 'explorable'. tab completion would show both versions available
         query = self._cursor.execute(
-            '''
-                SELECT value FROM kv_store
-            '''
+            ''' SELECT value FROM kv_store '''
         )
-        for value, in query:
+        for value in query:
             yield load(value)
-    
+        #return (load(value) for value in query) ###MP cons/pros either way? or make resultset it's own class so load() wrapping could be done with repr?
+
     def iter_items(self):
         query = self._cursor.execute(
-            '''
-                SELECT key, value FROM kv_store
-            '''
+            ''' SELECT key, value FROM kv_store '''
         )
         for key, value in query:
             yield load(key), load(value)
-    
+
     def keys(self):
+        ###MP shouldn't this be a set?  it's a unique collection, and order isnt important or guaranteed.  that's a set
         return list(self)
-        
+
     def values(self):
         return list(self.iter_values())
-    
+
     def items(self):
         return list(self.iter_items())
